@@ -946,3 +946,17 @@ if (sendBtn) {
         await handleSend();
     });
 }
+// Exemple de logique à ajouter là où vous gérez le clic sur un utilisateur
+function openChat(userId) {
+    const section = document.querySelector('section'); // Liste contacts
+    const main = document.querySelector('main');       // Zone messages
+
+    // Sur mobile (largeur < 768px)
+    if (window.innerWidth < 768) {
+        section.classList.add('hidden'); // Masquer la liste
+        main.classList.remove('hidden'); // Afficher les messages
+        main.classList.add('flex');      // Assurer le display flex
+    }
+    
+    // Charger vos messages ici...
+}
