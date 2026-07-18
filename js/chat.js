@@ -554,3 +554,20 @@ if (btnDelete) {
     });
     container.scrollTop = container.scrollHeight;
 }
+function toggleMessageMenu(id) {
+
+    document
+        .querySelectorAll("[id^='menu-']")
+        .forEach(menu => {
+
+            if (menu.id !== "menu-" + id)
+                menu.classList.add("hidden");
+
+        });
+
+    document
+        .getElementById("menu-" + id)
+        .classList
+        .toggle("hidden");
+
+}
