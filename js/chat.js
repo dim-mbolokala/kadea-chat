@@ -916,3 +916,33 @@ if (fileInput) {
     fileInput.value = "";
     });
 }
+// Fonction unifiée pour envoyer le message
+async function handleSend() {
+    const content = input.value.trim();
+    if (!content || !window.activeConversationId) return;
+
+    console.log("Envoi du message :", content);
+
+    const message = await envoyerMessage(window.activeConversationId, content);
+
+    if (message) {
+        const messages = await chargerMessages(window.activeConversationId);
+        afficherMessages(messages);
+        input.value = ""; // Vider l'input après l'envoi
+    }
+}
+
+// Envoi avec la touche Entrée
+input.addEventListener("keydown", async (e) => {
+    if (e.key === "Enter") {
+        e.preventDefault();
+        await handleSend();
+    }
+});
+
+// Envoi avec le clic sur la flèche bleue
+if (sendBtn) {
+    sendBtn.addEventListener("click", async () => {
+        await handleSend();
+    });
+}
