@@ -170,3 +170,49 @@ async function recupererInfosConversation(userId) {
         };
     }
 }
+async function envoyerMessage(conversationId, content) {
+    try {
+        // 1. Vérification de sécurité
+        if (!content || content.trim() === "") {
+            console.error("Le message est vide");
+            return null;
+        }
+
+        console.log("Conversation :", conversationId);
+        console.log("Message :", content);
+
+        const res = await fetch(
+            `${window.CHAT_BASE_URL}/conversations/${conversationId}/messages`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": window.CHAT_API_KEY,
+                    "Authorization": `Bearer ${window.CHAT_TOKEN}`
+                },
+                // Utilisation directe du paramètre 'content' au lieu de 'messageText'
+                body: JSON.stringify({
+                    content: content,
+                    conversationId: conversationId
+                })
+            }
+        );
+
+        console.log("Status :", res.status);
+
+        const data = await res.json();
+
+        console.log("Réponse POST /messages :", data);
+
+        if (!res.ok) {
+            console.error("Erreur API :", data);
+            return null;
+        }
+
+        return data;
+
+    } catch (err) {
+        console.error("Erreur JS :", err);
+        return null;
+    }
+}
