@@ -259,3 +259,78 @@ function formaterDatePourListe(isoDate) {
         return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' });
     }
 }
+// ==========================================
+// MODIFIER UN MESSAGE
+// ==========================================
+window.modifierMessage = async function(id) {
+
+    console.log("ID modification :", id);
+
+    const message = window.messages.find(msg => msg.id === id);
+
+    if (!message) {
+        console.error("Message introuvable");
+        return;
+    }
+
+
+    const nouveauTexte = prompt(
+        "Modifier le message :",
+        message.content
+    );
+
+
+    if (!nouveauTexte || nouveauTexte.trim() === message.content.trim()) {
+        return;
+    }
+
+
+    try {
+
+        const response = await fetch(
+            `${window.CHAT_BASE_URL}/messages/${id}`,
+            {
+                method: "PATCH",
+
+                headers: {
+                    "Authorization": `Bearer ${window.CHAT_TOKEN}`,
+                    "x-api-key": window.CHAT_API_KEY,
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+                    content: nouveauTexte.trim()
+                })
+            }
+        );
+
+
+        const data = await response.json();
+
+        console.log("Réponse API modification :", data);
+
+
+        if (!response.ok) {
+            throw new Error(data.message || "Modification échouée");
+        }
+
+
+        // Actualiser l'affichage
+        const messages = await chargerMessages(message.conversationId);
+
+        afficherMessages(messages);
+
+        // Afficher "(modifié)" après 2 secondes
+        afficherModificationApresDelai(id);
+
+
+    } catch(error) {
+
+        console.error(
+            "Erreur modification :",
+            error
+        );
+
+    }
+
+};
