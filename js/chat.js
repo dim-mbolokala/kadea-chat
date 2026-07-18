@@ -216,3 +216,25 @@ async function envoyerMessage(conversationId, content) {
         return null;
     }
 }
+// AJOUTEZ LA FONCTION ICI
+function formaterDate(isoDate) {
+    if (!isoDate) return "";
+    
+    const date = new Date(isoDate);
+    const today = new Date();
+    
+    // Comparaison précise (année, mois, jour)
+    const estAujourdhui = 
+        date.getDate() === today.getDate() &&
+        date.getMonth() === today.getMonth() &&
+        date.getFullYear() === today.getFullYear();
+
+    // Si c'est aujourd'hui, on affiche "Today", sinon le format JJ/MM
+    let jourStr = estAujourdhui 
+        ? "Today" 
+        : date.toLocaleDateString('en-US', { weekday: 'long' });
+    const jour = jourStr.charAt(0).toUpperCase() + jourStr.slice(1); 
+    const heure = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    
+    return { jour, heure };
+}
