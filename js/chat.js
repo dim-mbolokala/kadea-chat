@@ -238,3 +238,24 @@ function formaterDate(isoDate) {
     
     return { jour, heure };
 }
+// AJOUTEZ LA NOUVELLE FONCTION ICI
+function formaterDatePourListe(isoDate) {
+    if (!isoDate) return "";
+    
+    const date = new Date(isoDate);
+    const now = new Date();
+    
+    const dateSansHeure = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const todaySansHeure = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diffEnJours = (todaySansHeure - dateSansHeure) / (1000 * 60 * 60 * 24);
+
+    if (diffEnJours === 0) {
+        return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    } else if (diffEnJours === 1) {
+        return "Yesterday";
+    } else if (diffEnJours < 7) {
+        return date.toLocaleDateString('en-US', { weekday: 'long' });
+    } else {
+        return date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    }
+}
