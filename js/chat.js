@@ -960,3 +960,19 @@ function openChat(userId) {
     
     // Charger vos messages ici...
 }
+// ==========================================
+// 5. NAV LATÉRALE INTERACTIVE
+// ==========================================
+function activerNavigationLaterale() {
+    const navItems = [...document.querySelectorAll("aside nav > div"), document.querySelector("aside > div.mt-auto")];
+    navItems.forEach(item => {
+        if (!item) return;
+        item.addEventListener("click", () => {
+            navItems.forEach(el => {
+                if (!el) return;
+                el.className = "text-slate-400 hover:text-blue-600 cursor-pointer transition-colors p-3 rounded-xl";
+            });
+            item.className = "p-3 bg-blue-50 text-blue-600 rounded-xl cursor-pointer transition-all";
+        });
+    });
+}
