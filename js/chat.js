@@ -51,3 +51,40 @@ async function verifierConversation(userId) {
         return null; // Retourne null pour forcer la tentative de création directe
     }
 }
+async function creerConversation(userId) {
+    try {
+
+        const monId = window.currentUser?.id || "377a447b-16b0-407d-a4bb-1260fd890ac7";
+
+        const res = await fetch(`${window.CHAT_BASE_URL}/conversations`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": window.CHAT_API_KEY,
+                "Authorization": `Bearer ${window.CHAT_TOKEN}`,
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                type: "private",
+                name: "Discussion",
+                participantIds: [
+                    monId,
+                    userId
+                ]
+            })
+        });
+
+        if (!res.ok) {
+            console.log(await res.text());
+            return null;
+        }
+
+        const apiData = await res.json();
+
+        return apiData.data.conversation;
+
+    } catch (err) {
+        console.error(err);
+        return null;
+    }
+}
