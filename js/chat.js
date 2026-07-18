@@ -88,3 +88,25 @@ async function creerConversation(userId) {
         return null;
     }
 }
+async function chargerMessages(conversationId) {
+    try {
+        const res = await fetch(`${window.CHAT_BASE_URL}/conversations/${conversationId}/messages`, {
+            method: "GET",
+            headers: {
+                "x-api-key": window.CHAT_API_KEY,
+                "Authorization": `Bearer ${window.CHAT_TOKEN}`,
+                "Accept": "application/json"
+            }
+        });
+        if (!res.ok) throw new Error("Impossible de charger les messages");
+        
+        const apiData = await res.json();
+        console.log(
+        JSON.stringify(apiData.data.messages, null, 2)
+        );
+        return apiData.data.messages;
+    } catch (err) {
+        console.error("Erreur chargement messages :", err);
+        return [];
+    }
+}
