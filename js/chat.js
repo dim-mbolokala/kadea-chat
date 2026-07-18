@@ -418,3 +418,139 @@ function editerMessage(messageId, ancienTexte) {
     modifierMessage(messageId, texte);
 
 }
+// ==========================================
+// 3. AFFICHAGE ET RENDU HTML
+// ==========================================
+function afficherMessages(messages) {
+     window.messages = messages; // AJOUTER CETTE LIGNE
+    const container = window.CHAT_MESSAGES_CONTAINER;
+    container.innerHTML = "";
+    const myId = window.currentUser?.id ;
+    let derniereDate = null;
+
+    if (!messages || messages.length === 0) {
+        container.innerHTML = `<div class="text-center text-slate-400 mt-10">Aucun message</div>`;
+        return;
+    }
+
+    messages.forEach(msg => {
+        const estMoi = String(msg.senderId) === String(myId);
+        const { jour, heure } = formaterDate(msg.createdAt);
+        
+        if (jour !== derniereDate) {
+            container.innerHTML += `
+                <div class="text-center text-[10px] text-slate-400 my-4 font-bold ">
+                    ${jour}
+                </div>`;
+            derniereDate = jour;
+        }
+        
+        const div = document.createElement("div");
+        div.dataset.messageId = msg.id;
+        // On garde le flex pour aligner tout le bloc message à gauche ou à droite
+        div.className = `flex ${estMoi ? "justify-end" : "justify-start"} mb-4`;
+        
+        // On utilise un conteneur colonne (flex-col) pour empiler la bulle et l'heure
+        div.innerHTML = `
+            <div class="flex flex-col ${estMoi ? "items-end" : "items-start"} max-w-[70%]">
+                <div class="px-4 py-3 rounded-2xl shadow-sm ${
+                    estMoi ? "bg-blue-600 text-white rounded-tr-none" : "bg-white text-slate-800 rounded-tl-none border border-slate-100"
+                }">
+                    <div class="flex items-start gap-2">
+
+    <p class="text-sm flex-1">
+        ${msg.content}
+    </p>
+
+    ${
+        estMoi
+        ?
+        `
+        <div class="relative">
+
+            <button
+                class="btn-menu text-xs opacity-70 hover:opacity-100"
+                data-id="${msg.id}">
+                ⋮
+            </button>
+            
+            <div
+                id="menu-${msg.id}"
+                class="hidden absolute right-0 top-5 bg-white shadow-lg rounded-lg border w-36 z-50">
+
+                <button
+                    class="btn-edit block w-full text-left px-3 py-2 hover:bg-gray-100"
+                    data-id="${msg.id}"
+                    data-content="${encodeURIComponent(msg.content)}">
+                    ✏️ Modifier
+                </button>
+
+                <button
+                    class="btn-delete block w-full text-left px-3 py-2 text-red-600 hover:bg-red-50"
+                    data-id="${msg.id}">
+                    🗑 Supprimer
+                </button>
+
+            </div>
+
+        </div>
+        `
+        :
+        ""
+    }
+
+</div>
+                </div>
+                <div class="text-[9px] mt-1 text-slate-400 px-1">
+                    ${heure}
+                </div>
+            </div>
+        `;
+        container.appendChild(div);
+        // Bouton Modifier
+const btnMenu = div.querySelector(".btn-menu");
+
+if (btnMenu) {
+
+    btnMenu.addEventListener("click", function (e) {
+
+        e.stopPropagation();
+
+        toggleMessageMenu(this.dataset.id);
+
+    });
+
+}
+// Bouton Modifier
+const btnEdit = div.querySelector(".btn-edit");
+
+if (btnEdit) {
+
+    btnEdit.addEventListener("click", function () {
+
+        const id = this.dataset.id;
+
+        console.log("MODIFIER CLIQUÉ :", id);
+
+        modifierMessage(id);
+
+    });
+
+}
+// Bouton Supprimer
+const btnDelete = div.querySelector(".btn-delete");
+
+if (btnDelete) {
+
+    btnDelete.addEventListener("click", function () {
+
+        const id = this.dataset.id;
+
+        supprimerMessage(id);
+
+    });
+
+}
+    });
+    container.scrollTop = container.scrollHeight;
+}
