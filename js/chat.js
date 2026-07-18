@@ -629,3 +629,73 @@ if (utilisateur) {
         };
     });
 }
+function redessinerListe(listeUtilisateurs) {
+
+    window.CHAT_USERS_LIST = document.getElementById("usersList");
+
+    if (!window.CHAT_USERS_LIST) return;
+
+    window.CHAT_USERS_LIST.innerHTML = "";
+
+    listeUtilisateurs.forEach(item => {
+        const user = item.user;
+        const displayName = user.fullName || "Utilisateur";
+
+        window.CHAT_USERS_LIST.innerHTML += `
+        <div 
+        class="user-item px-5 py-4 flex items-center space-x-4 cursor-pointer hover:bg-slate-50 transition-colors"
+        data-user="${user.id || user._id}">
+
+            <!-- Avatar seul, sans le div pour le point vert -->
+            <div class="relative">
+                <img 
+                src="${user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}`}"
+                class="h-12 w-12 rounded-full object-cover">
+            </div>
+
+            <div class="flex-1 min-w-0">
+                <div class="flex justify-between">
+                    <h4 class="font-bold text-sm text-slate-800 truncate">
+                    ${displayName}
+                    </h4>
+
+                    <span class="text-[10px] text-slate-400">
+                    ${item.lastTime || ""}
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <p class="text-xs text-slate-500 truncate max-w-[170px]">
+                    ${item.lastMessage || "Aucun message"}
+                    </p>
+
+                    ${
+                    item.unread > 0
+                    ?
+                    `
+                    <span class="
+                    bg-blue-600 
+                    text-white 
+                    text-[11px]
+                    font-bold
+                    rounded-full
+                    h-5 
+                    w-5
+                    flex 
+                    items-center 
+                    justify-center
+                    shrink-0">
+                    ${item.unread}
+                    </span>
+                    `
+                    :
+                    ""
+                    }
+                </div>
+            </div>
+        </div>
+        `;
+    });
+
+    activerChats();
+}
