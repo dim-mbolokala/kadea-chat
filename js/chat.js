@@ -334,3 +334,35 @@ window.modifierMessage = async function(id) {
     }
 
 };
+// ==========================================
+// AFFICHER "MODIFIÉ" APRÈS 2 SECONDES
+// ==========================================
+function afficherModificationApresDelai(messageId) {
+
+    setTimeout(() => {
+
+        const messageElement = document.querySelector(
+            `[data-message-id="${messageId}"]`
+        );
+
+        if (messageElement) {
+
+            const badge = messageElement.querySelector(".message-modifie");
+
+            if (!badge) {
+
+                const span = document.createElement("span");
+
+                span.className = "message-modifie text-[10px] ml-2 text-gray-400";
+
+                span.textContent = "(modifié)";
+
+                messageElement.appendChild(span);
+
+            }
+
+        }
+
+    }, 2000);
+
+}
