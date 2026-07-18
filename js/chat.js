@@ -404,3 +404,17 @@ async function supprimerMessage(messageId) {
 
 }
 
+// ==========================================
+// EDITER
+// ==========================================
+function editerMessage(messageId, ancienTexte) {
+
+    const texte = prompt("Modifier le message", ancienTexte);
+
+    if (texte === null) return;
+
+    if (texte.trim() === "") return;
+
+    modifierMessage(messageId, texte);
+
+}
