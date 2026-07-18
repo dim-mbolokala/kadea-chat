@@ -571,3 +571,61 @@ function toggleMessageMenu(id) {
         .toggle("hidden");
 
 }
+function activerChats() {
+    document.querySelectorAll(".user-item").forEach(item => {
+        item.onclick = async () => {
+            const userId = item.dataset.user;
+            if (!userId) return;
+            // --- AJOUT : Logique Responsive ---
+            const sidebar = document.getElementById("sidebar"); // Assurez-vous d'avoir cet ID sur votre section liste
+            const mainChat = document.querySelector("main");    // Votre zone de messagerie
+            
+            if (window.innerWidth < 768) {
+                if (sidebar) sidebar.classList.add("hidden");
+                if (mainChat) {
+                    mainChat.classList.remove("hidden");
+                    mainChat.classList.add("flex");
+                }
+            }
+            // ----------------------------------
+            console.log("Clic sur l'utilisateur :", userId);
+
+            if (window.CHAT_MESSAGES_CONTAINER) {
+                window.CHAT_MESSAGES_CONTAINER.innerHTML = `<div class="text-center text-slate-400 mt-10 text-sm">Ouverture de la conversation...</div>`;
+            }
+
+            // 1. On tente une vérification douce
+            let conversation = await verifierConversation(userId);
+            
+            // 2. Si CORS ou inexistante, on fonce directement sur la création/récupération POST
+            if (!conversation) {
+                conversation = await creerConversation(userId);
+            }
+
+            const convId = conversation?.id || conversation?.data?.id || conversation?._id || conversation?.data?._id;
+
+            if (convId) {
+                window.activeConversationId = convId;
+                console.log("activeConversationId =", window.activeConversationId);
+                const messages = await chargerMessages(convId);
+                afficherMessages(messages);
+                
+                const utilisateur = window.CHAT_USERS_DATA.find(
+    u => String(u.user.id || u.user._id) === String(userId)
+);
+
+if (utilisateur) {
+    afficherProfilConversation(utilisateur.user);
+}
+            } else {
+                if (window.CHAT_MESSAGES_CONTAINER) {
+                    window.CHAT_MESSAGES_CONTAINER.innerHTML = `
+                        <div class="text-center text-red-500 mt-10 text-sm">
+                            <p class="font-semibold">Impossible de charger la conversation.</p>
+                            <p class="text-xs text-slate-400 mt-1">Veuillez demander aux administrateurs de l'API d'autoriser l'en-tête Authorization dans leur configuration CORS.</p>
+                        </div>`;
+                }
+            }
+        };
+    });
+}
