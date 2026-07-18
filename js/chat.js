@@ -864,3 +864,55 @@ console.log(document.getElementById("chatUserAvatar"));
     }
 }
 
+// ==========================================
+// 4. ÉCOUTEURS D'ÉVÉNEMENTS
+// ==========================================
+const input = document.getElementById("messageInput");
+const sendBtn = document.getElementById("sendBtn");
+const emojiBtn = document.getElementById('emoji-btn');
+const picker = document.getElementById('emoji-selector');
+const fileBtn = document.getElementById('file-upload-btn'); // ID du bouton "+"
+const fileInput = document.getElementById('file-input');   // ID de l'input type file masqué
+console.log("Bouton trouvé :", fileBtn);
+console.log("Input trouvé :", fileInput);
+// --- Logique Émojis ---
+if (picker) {
+    emojiBtn.addEventListener('click', () => {
+        picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
+    });
+
+    picker.addEventListener('emoji-click', event => {
+        input.value += event.detail.unicode;
+        picker.style.display = 'none';
+        input.focus();
+    });
+}
+
+// --- Logique Fichiers (Photos/Vidéos) ---
+if (fileBtn) {
+    fileBtn.addEventListener('click', () => {
+        fileInput.click(); // Ouvre la sélection de fichiers
+    });
+}
+
+if (fileInput) {
+    fileInput.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    console.log("Fichier prêt à être envoyé :", file.name);
+
+    // 1. Appeler la fonction qui envoie réellement le fichier au serveur
+    // Vous devez avoir cette fonction définie dans votre projet
+    const message = await envoyerFichier(window.activeConversationId, file);
+
+    // 2. Si l'envoi réussit, rafraîchir la liste des messages
+    if (message) {
+        const messages = await chargerMessages(window.activeConversationId);
+        afficherMessages(messages);
+    }
+    
+    // 3. Réinitialiser l'input pour pouvoir renvoyer le même fichier si besoin
+    fileInput.value = "";
+    });
+}
