@@ -699,3 +699,168 @@ function redessinerListe(listeUtilisateurs) {
 
     activerChats();
 }
+async function chargerUtilisateurs() {
+    try {
+        console.log("Démarrage du chargement des utilisateurs...");
+        
+        const meResponse = await fetch(`${window.CHAT_BASE_URL}/auth/me`, {
+            headers: {
+                "x-api-key": window.CHAT_API_KEY,
+                "Authorization": `Bearer ${window.CHAT_TOKEN}`
+            }
+        });
+        
+        let me = null;
+        if (meResponse.ok) {
+            const jsonMe = await meResponse.json();
+            console.log("Réponse complète /auth/me :", jsonMe);
+            me = jsonMe.data?.user||jsonMe.user || jsonMe.data || jsonMe;
+            window.currentUser = me;
+            const currentUserNameEl = document.getElementById("currentUserName");
+            console.log("Données de l'utilisateur reçu (me) :", me);
+            const currentUserAvatarEl = document.getElementById("currentUserAvatar");
+            if (currentUserNameEl) {
+                currentUserNameEl.textContent = me.fullName || "Nom non trouvé";
+            }
+            if (currentUserAvatarEl) {
+                // 1. Assurez-vous que le parent est "relative"
+                currentUserAvatarEl.parentElement.classList.add("relative");
+                
+                // 2. Ajout de la bulle de statut (verte par défaut pour vous)
+                // On vérifie si elle existe déjà pour ne pas la dupliquer
+                if (!currentUserAvatarEl.parentElement.querySelector('.status-bubble')) {
+                    currentUserAvatarEl.insertAdjacentHTML('afterend', `
+                        <div class="status-bubble absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white bg-green-500"></div>
+                    `);
+                }
+
+                currentUserAvatarEl.src = me.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(me.fullName || 'Dim mbolokala')}`;
+                currentUserAvatarEl.classList.remove("hidden");
+            }
+        }
+
+        const usersResponse = await fetch(`${window.CHAT_BASE_URL}/users`, {
+            headers: {
+                "x-api-key": window.CHAT_API_KEY,
+                "Authorization": `Bearer ${window.CHAT_TOKEN}`
+            }
+        });
+
+        if (!usersResponse.ok) {
+            console.error("Erreur HTTP sur /users :", usersResponse.status);
+            redessinerListe([]);
+            return;
+        }
+        if (!window.currentUser) {
+            window.currentUser = {
+                id: "window.currentUser?.id",
+                fullName: "Dim mbolokala"
+            };
+        }
+
+        const apiData = await usersResponse.json();
+        let users = [];
+        if (apiData) {
+            if (Array.isArray(apiData)) {
+                users = apiData;
+            } else if (apiData.data) {
+                if (Array.isArray(apiData.data)) {
+                    users = apiData.data;
+                } else if (typeof apiData.data === 'object') {
+                    const tableauTrouve = Object.values(apiData.data).find(val => Array.isArray(val));
+                    if (tableauTrouve) users = tableauTrouve;
+                    else users = Object.values(apiData.data);
+                }
+            } else if (apiData.users && Array.isArray(apiData.users)) {
+                users = apiData.users;
+            }
+        }
+
+        if (Array.isArray(users)) {
+            users = users.filter(u => u && typeof u === 'object' && (u.id || u._id));
+        } else {
+            users = [];
+        }
+
+        const myId = String(me?.id || me?._id || "").trim().toLowerCase();
+        const myFullName = String(me?.fullName || "Dim mbolokala").trim().toLowerCase();
+        const myUsername = String(me?.username || "").trim().toLowerCase();
+
+        const listeFiltrer = users.filter(u => {
+            if (!u) return false;
+            const currentId = String(u.id || u._id || "").trim().toLowerCase();
+            const currentFullName = String(u.fullName || u.name || "").trim().toLowerCase();
+            const currentUsername = String(u.username || "").trim().toLowerCase();
+
+            if ((currentId !== "" && currentId === myId) || 
+                (currentFullName !== "" && currentFullName === myFullName) || 
+                (currentUsername !== "" && currentUsername === myUsername)) {
+                return false; 
+            }
+            return true;
+        });
+        
+        window.CHAT_USERS_DATA = await Promise.all(
+    listeFiltrer.map(async user => {
+
+        const infos = await recupererInfosConversation(
+            user.id || user._id
+        );
+
+        return {
+            user:user,
+            convId:null,
+            ...infos
+        };
+
+    })
+);
+
+
+redessinerListe(window.CHAT_USERS_DATA);
+
+    } catch (err) {
+        console.error("Crash dans chargerUtilisateurs :", err);
+        redessinerListe([]);
+    }
+}
+function afficherProfilConversation(user) {
+console.log(document.getElementById("statusText"));
+console.log(document.getElementById("chatUserStatus"));
+console.log(document.getElementById("chatUserAvatar"));
+    const headerName = document.getElementById("chatUserName");
+    const headerAvatar = document.getElementById("chatUserAvatar");
+    const headerStatus = document.getElementById("chatUserStatus");
+
+    // Nom
+    if (headerName) {
+        headerName.textContent = user.fullName;
+    }
+
+    // Avatar
+    if (headerAvatar) {
+
+        headerAvatar.src =
+            user.avatarUrl ||
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(user.fullName || user.name || "User")}`;
+
+        headerAvatar.classList.remove("hidden");
+    }
+
+    // Statut
+    const statusText = document.getElementById("statusText");
+    const statusDot = document.getElementById("statusDot");
+
+    if (headerStatus) {
+
+        headerStatus.classList.remove("hidden");
+
+        // Votre API ne fournit pas isOnline.
+        // On affiche donc Online par défaut.
+        statusText.textContent = "Online";
+        statusText.style.textTransform = "capitalize";
+        statusDot.className =
+            "w-2 h-2 rounded-full bg-green-500";
+    }
+}
+
