@@ -976,3 +976,22 @@ function activerNavigationLaterale() {
         });
     });
 }
+document.addEventListener("DOMContentLoaded", () => {
+    chargerUtilisateurs();
+    activerNavigationLaterale();
+    // Mise à jour automatique toutes les minutes
+    setInterval(() => {
+        chargerUtilisateurs();
+    }, 20000);
+});
+document.addEventListener("click", function(e){
+
+    if(!e.target.closest(".relative")){
+
+        document
+        .querySelectorAll("[id^='menu-']")
+        .forEach(menu=>menu.classList.add("hidden"));
+
+    }
+
+});
