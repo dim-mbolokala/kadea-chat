@@ -366,3 +366,41 @@ function afficherModificationApresDelai(messageId) {
     }, 2000);
 
 }
+// ==========================================
+// SUPPRIMER UN MESSAGE
+// ==========================================
+async function supprimerMessage(messageId) {
+
+    if (!confirm("Supprimer ce message ?")) return;
+
+    try {
+
+        const response = await fetch(
+            `${window.CHAT_BASE_URL}/messages/${messageId}`,
+            {
+                method: "DELETE",
+                headers: {
+                    "x-api-key": window.CHAT_API_KEY,
+                    "Authorization": `Bearer ${window.CHAT_TOKEN}`
+                }
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message);
+        }
+
+        const messages = await chargerMessages(window.activeConversationId);
+        afficherMessages(messages);
+
+    } catch (err) {
+
+        console.error(err);
+        alert(err.message);
+
+    }
+
+}
+
