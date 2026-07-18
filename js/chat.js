@@ -995,3 +995,21 @@ document.addEventListener("click", function(e){
     }
 
 });
+// ==========================================
+// 6. GESTION DU BOUTON RETOUR (MOBILE)
+// ==========================================
+const backBtn = document.getElementById("backBtn");
+
+if (backBtn) {
+    backBtn.addEventListener("click", () => {
+        const sidebar = document.getElementById("sidebar");
+        const mainChat = document.querySelector("main");
+
+        // On réaffiche la liste et on cache le chat
+        if (sidebar) sidebar.classList.remove("hidden");
+        if (mainChat) {
+            mainChat.classList.add("hidden");
+            mainChat.classList.remove("flex");
+        }
+    });
+}
