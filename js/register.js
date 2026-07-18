@@ -65,3 +65,23 @@ form.addEventListener("submit", async (e) => {
     }
 
 });
+
+// ===============================
+// Afficher / Masquer le mot de passe
+// ===============================
+
+const passwordInput = document.getElementById("password");
+const confirmPasswordInput = document.getElementById("confirmPassword");
+
+const togglePassword = document.getElementById("togglePassword");
+const toggleConfirmPassword = document.getElementById("toggleConfirmPassword");
+
+togglePassword.addEventListener("click", () => {
+    passwordInput.type =
+        passwordInput.type === "password" ? "text" : "password";
+});
+
+toggleConfirmPassword.addEventListener("click", () => {
+    confirmPasswordInput.type =
+        confirmPasswordInput.type === "password" ? "text" : "password";
+});
