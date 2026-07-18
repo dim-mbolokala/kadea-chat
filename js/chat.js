@@ -110,3 +110,63 @@ async function chargerMessages(conversationId) {
         return [];
     }
 }
+async function recupererInfosConversation(userId) {
+    try {
+        const conversation = await verifierConversation(userId);
+
+        if (!conversation) {
+            return {
+                lastMessage: "",
+                lastTime: "",
+                unread: 0
+            };
+        }
+
+        const messages = await chargerMessages(conversation.id);
+
+        if (!messages || messages.length === 0) {
+            return {
+                lastMessage: "",
+                lastTime: "",
+                unread: 0
+            };
+        }
+
+        // Trier du plus récent au plus ancien
+        messages.sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        const dernier = messages[0];
+
+        // Messages non lus
+        const unread = messages.filter(msg =>
+            String(msg.senderId) !== String(window.currentUser.id) &&
+            (
+                msg.read === false ||
+                msg.isRead === false ||
+                msg.seen === false ||
+                msg.status === "unread"
+            )
+        ).length;
+
+
+        const dateFormatee = formaterDatePourListe(dernier.createdAt);
+
+        return {
+            lastMessage: dernier.content,
+            lastTime: dateFormatee, // Utilise maintenant la nouvelle fonction
+            unread: unread
+        };
+
+
+    } catch (error) {
+        console.error(error);
+
+        return {
+            lastMessage:"",
+            lastTime:"",
+            unread:0
+        };
+    }
+}
